@@ -1,23 +1,6 @@
 version: "3.9"
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: k8s-mysql
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root123
-      MYSQL_DATABASE: k8s_manager
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   backend:
     build: ./backend
     container_name: k8s-backend
@@ -25,15 +8,12 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DB_HOST: mysql
-      DB_PORT: 3306
+      DB_HOST: 192.168.3.31
+      DB_PORT: 3307
       DB_USER: root
-      DB_PASSWORD: root123
+      DB_PASSWORD: 123456
       DB_NAME: k8s_manager
-      SECRET_KEY: change-me-in-production
-    depends_on:
-      mysql:
-        condition: service_healthy
+      SECRET_KEY: dev-secret-change-in-production
 
   frontend:
     build: ./frontend
@@ -43,6 +23,3 @@ services:
       - "3000:3000"
     depends_on:
       - backend
-
-volumes:
-  mysql_data:
